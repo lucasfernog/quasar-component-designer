@@ -2,7 +2,7 @@ import {
   QInput
 } from 'quasar'
 
-export default (h, propValues, prop) => {
+export default (h, propValues, prop, propDefinition) => {
   return h(QInput, {
     props: {
       value: propValues[prop],
@@ -18,8 +18,8 @@ export default (h, propValues, prop) => {
         }
       }
     },
-    domProps: {
-      placeholder: prop
+    attrs: {
+      placeholder: propDefinition.desc
     },
     staticClass: 'col-xs-12 col-md-4'
   })

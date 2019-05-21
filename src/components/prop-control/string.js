@@ -37,8 +37,8 @@ export default (h, propValues, prop, propDefinition) => {
         propValues[prop] = val
       }
     },
-    domProps: {
-      placeholder: prop
+    attrs: {
+      placeholder: propDefinition.desc
     },
     staticClass: 'col-xs-12 col-md-4'
   })

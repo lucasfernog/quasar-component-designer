@@ -1,19 +1,13 @@
 export default {
   props: {
     options: {
-      defaultValue: [
-        {
-          label: 'Label',
-          value: 'Value'
-        },
-        {
-          label: 'Second Label',
-          value: 'Second Value'
-        }
-      ]
+      defaultValue: ['Google', 'Facebook', 'Oracle']
     },
     label: {
       defaultValue: 'Test Select'
+    },
+    'use-chips': {
+      defaultValue: true
     }
   }
 }

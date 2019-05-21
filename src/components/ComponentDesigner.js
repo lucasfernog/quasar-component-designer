@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import defaultOptions from './options/default'
+import ArgumentPicker from './ArgumentPicker.js'
 const Quasar = require('quasar')
 
 const types = {
@@ -109,10 +110,26 @@ export default Vue.extend({
           staticClass: 'q-mx-xs',
           on: {
             click: () => {
-              this.$refs.component[m]()
+              if (this.api.methods[m].params === void 0) {
+                this.$refs.component[m]()
+              }
             }
           }
-        })
+        }, this.api.methods[m].params === void 0 ? null : [h(ArgumentPicker, {
+          props: {
+            arguments: this.api.methods[m].params
+          },
+          on: {
+            pick: (args) => {
+              const argArray = []
+              for (const arg in args) {
+                argArray.push(args[arg])
+              }
+              console.log(argArray)
+              this.$refs.component[m].apply(this, argArray)
+            }
+          }
+        })])
       ) : null
     }
   },
@@ -183,7 +200,6 @@ export default Vue.extend({
         props: this.propValues,
         on: {
           input: (val) => {
-            console.log(val, this.propValues.value)
             this.propValues.value = val
           }
         }
