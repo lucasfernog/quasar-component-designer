@@ -3,18 +3,18 @@ import {
   QSelect
 } from 'quasar'
 
-export default (h, argumentValues, argument, argumentDefinition) => {
+export default (h, model, property, definition) => {
   const props = {
-    value: argumentValues[argument],
-    label: argument
+    value: model[property],
+    label: property
   }
 
   let component
-  if (argumentDefinition.values === void 0) {
+  if (definition.values === void 0) {
     component = QInput
   } else {
     component = QSelect
-    props.options = argumentDefinition.values.map(v => {
+    props.options = definition.values.map(v => {
       return {
         label: v,
         value: v
@@ -27,11 +27,11 @@ export default (h, argumentValues, argument, argumentDefinition) => {
     props,
     on: {
       input: (val) => {
-        argumentValues[argument] = val
+        model[property] = val
       }
     },
     attrs: {
-      placeholder: argument
+      placeholder: property
     },
     staticClass: 'col-xs-12 col-md-4'
   })

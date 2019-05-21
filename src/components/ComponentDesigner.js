@@ -1,28 +1,8 @@
 import Vue from 'vue'
+const Quasar = require('quasar')
 import defaultOptions from './options/default'
 import ArgumentPicker from './ArgumentPicker.js'
-const Quasar = require('quasar')
-
-const types = {
-  Boolean: {
-    render: require('./prop-control/boolean').default,
-    defaultValue: def => (def.default || 'false').toLowerCase() === 'true'
-  },
-  String: {
-    render: require('./prop-control/string').default,
-    defaultValue: def => def.required ? (def.default || (def.values && def.values[0]) || '') : null
-  },
-  Number: {
-    render: require('./prop-control/number').default,
-    defaultValue (def) {
-      let value = def.required ? (def.default || (def.values && def.values[0])) : null
-      if (value !== null && value !== void 0 && value !== '') {
-        return value.includes('.') ? parseFloat(value) : parseInt(value)
-      }
-      return value
-    }
-  }
-}
+import types from './types.js'
 
 export default Vue.extend({
   // name: 'ComponentName',

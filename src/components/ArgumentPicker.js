@@ -1,20 +1,6 @@
 import Vue from 'vue'
 import { QMenu, QBtn } from 'quasar'
-
-const types = {
-  Boolean: {
-    render: require('./argument-control/boolean').default,
-    defaultValue: def => (def.default || 'false').toLowerCase() === 'true'
-  },
-  String: {
-    render: require('./argument-control/string').default,
-    defaultValue: def => def.required ? (def.default || '') : null
-  },
-  Any: {
-    render: require('./argument-control/json').default,
-    defaultValue: def => def.required ? (def.default || '') : null
-  }
-}
+import types from './types.js'
 
 export default Vue.extend({
   props: {
@@ -71,7 +57,6 @@ export default Vue.extend({
       }
     }))
 
-    console.log(controls)
     return h(QMenu, [h('div', {
       staticClass: 'col'
     }, controls)])

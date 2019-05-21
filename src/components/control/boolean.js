@@ -2,15 +2,15 @@ import {
   QToggle
 } from 'quasar'
 
-export default (h, argumentsValues, argument) => {
+export default (h, model, property) => {
   return h(QToggle, {
     props: {
-      value: argumentsValues[argument],
-      label: argument
+      value: model[property],
+      label: property
     },
     on: {
       input: (val) => {
-        argumentsValues[argument] = val
+        model[property] = val
       }
     },
     staticClass: 'col-xs-3 col-md-2'

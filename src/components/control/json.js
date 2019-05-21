@@ -2,12 +2,12 @@ import {
   QInput
 } from 'quasar'
 
-export default (h, argumentValues, argument, argumentDefinition) => {
+export default (h, model, property, definition) => {
   const props = {
-    value: typeof argumentValues[argument] === 'object'
-      ? JSON.stringify(argumentValues[argument], null, 2)
-      : argumentValues[argument],
-    label: argument,
+    value: typeof model[property] === 'object'
+      ? JSON.stringify(model[property], null, 2)
+      : model[property],
+    label: property,
     type: 'textarea'
   }
 
@@ -21,11 +21,11 @@ export default (h, argumentValues, argument, argumentDefinition) => {
         } catch {
           json = val
         }
-        argumentValues[argument] = json
+        model[property] = json
       }
     },
     attrs: {
-      placeholder: argumentDefinition.desc
+      placeholder: definition.desc
     },
     staticClass: 'col-xs-12 col-md-4'
   })
