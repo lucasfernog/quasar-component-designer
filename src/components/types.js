@@ -10,5 +10,9 @@ export default {
   Any: {
     render: require('./control/json').default,
     defaultValue: def => def.required ? (def.default || '') : null
+  },
+  Array: {
+    render: require('./control/array').default,
+    defaultValue: def => def.required ? (def.default || []) : null
   }
 }

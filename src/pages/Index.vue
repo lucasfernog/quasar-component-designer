@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page>
     <component-designer component="QSelect"/>
   </q-page>
 </template>
