@@ -4,6 +4,7 @@ import defaultOptions from './options/default'
 import ArgumentSelector from './ArgumentSelector.js'
 import PropSelector from './PropSelector.js'
 import types from './types.js'
+import groupBy from './groupBy.js'
 
 export default Vue.extend({
   name: 'ComponentDesigner',
@@ -25,23 +26,6 @@ export default Vue.extend({
   },
 
   methods: {
-    __groupBy (list, groupKey, defaultGroupKeyValue) {
-      const res = {}
-      for (let key in list) {
-        if (list.hasOwnProperty(key)) {
-          let value = list[key]
-          let groupKeyValue = (value[groupKey] || defaultGroupKeyValue).split('|')
-          for (let groupKeyV of groupKeyValue) {
-            if (res[groupKeyV] === void 0) {
-              res[groupKeyV] = {}
-            }
-            res[groupKeyV][key] = value
-          }
-        }
-      }
-      return res
-    },
-
     __renderMethodsButtons (h) {
       return this.api.methods ? Object.keys(this.api.methods).map(
         m => h(Quasar.QBtn, {
@@ -81,7 +65,7 @@ export default Vue.extend({
       immediate: true,
       async handler () {
         this.api = (await import(`quasar/dist/api/${this.component}.json`)).default
-        this.api.props = this.__groupBy(this.api.props, 'category', 'general')
+        this.api.props = groupBy(this.api.props, 'category', 'general')
 
         for (let category in this.api.props) {
           for (let prop in this.api.props[category]) {
@@ -140,7 +124,8 @@ export default Vue.extend({
       h(PropSelector, {
         props: {
           api: this.api,
-          value: this.model
+          value: this.model,
+          contentClass: 'row'
         },
         on: {
           input: (prop, val) => {

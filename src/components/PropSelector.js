@@ -1,6 +1,7 @@
 import Vue from 'vue'
-import types from './types.js'
+import groupBy from './groupBy.js'
 import { QTabs, QTab, QTabPanels, QTabPanel } from 'quasar'
+import PropControl from './PropControl.js'
 
 export default Vue.extend({
   name: 'PropSelector',
@@ -13,7 +14,8 @@ export default Vue.extend({
     value: {
       type: Object,
       required: true
-    }
+    },
+    contentClass: String
   },
 
   data () {
@@ -58,7 +60,8 @@ export default Vue.extend({
         c => h(QTabPanel, {
           props: {
             name: c
-          }
+          },
+          staticClass: this.contentClass
         }, controls[c])
       ))
     }
@@ -81,32 +84,43 @@ export default Vue.extend({
     const controls = {}
     for (let category in this.api.props) {
       controls[category] = []
-      for (let prop in this.api.props[category]) {
-        const propDefinition = this.api.props[category][prop]
-        let type = propDefinition.type
-        if (Array.isArray(type)) {
-          type = type[0]
-        }
+      const groupedProps = groupBy(this.api.props[category], 'type')
+      for (let type in groupedProps) {
+        const props = groupedProps[type]
 
-        if (types[type]) {
+        const typeControls = []
+
+        for (let prop in props) {
+          const propDefinition = props[prop]
+          let type = propDefinition.type
+          if (Array.isArray(type)) {
+            type = type[0]
+          }
+
           if (prop !== 'value') {
-            controls[category].push(
-              h(types[type].component, {
+            typeControls.push(
+              h(PropControl, {
                 props: {
                   value: this.value[prop],
                   prop,
-                  propDefinition
+                  propDefinition,
+                  contentClass: type === 'Boolean' ? 'col-xs-3 col-md-2 q-pr-md' : 'col-xs-12 col-md-4 q-pr-md'
                 },
                 on: {
                   input: val => {
                     this.$emit('input', prop, val)
                   }
-                },
-                staticClass: type === 'Boolean' ? 'col-xs-3 col-md-2' : 'col-xs-12 col-md-4'
+                }
               })
             )
           }
         }
+
+        controls[category].push(
+          h('div', {
+            staticClass: 'row col-12'
+          }, typeControls)
+        )
       }
     }
 
