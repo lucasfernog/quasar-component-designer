@@ -3,6 +3,7 @@ const Quasar = require('quasar')
 import defaultOptions from './options/default'
 import ArgumentSelector from './ArgumentSelector.js'
 import PropSelector from './PropSelector.js'
+import ComponentList from './ComponentList.js'
 import types from './types.js'
 import groupBy from './groupBy.js'
 
@@ -19,9 +20,12 @@ export default Vue.extend({
   data () {
     return {
       model: {},
+      currentComponent: this.component,
       api: null,
       tab: null,
-      options: null
+      options: null,
+      splitter1: 15,
+      splitter2: 50
     }
   },
 
@@ -61,10 +65,14 @@ export default Vue.extend({
   },
 
   watch: {
-    component: {
+    component (val) {
+      this.currentComponent = val
+    },
+    currentComponent: {
       immediate: true,
       async handler () {
-        this.api = (await import(`quasar/dist/api/${this.component}.json`)).default
+        this.model = {}
+        this.api = (await import(`quasar/dist/api/${this.currentComponent}.json`)).default
         this.api.props = groupBy(this.api.props, 'category', 'general')
 
         for (let category in this.api.props) {
@@ -77,16 +85,16 @@ export default Vue.extend({
             }
             if (types[type] !== void 0) {
               defaultValue = types[type].defaultValue(propDefinition)
-              if (this.model[prop] === void 0) {
-                this.$set(this.model, prop, defaultValue)
-              }
+            }
+            if (this.model[prop] === void 0) {
+              this.$set(this.model, prop, defaultValue)
             }
           }
         }
 
         let options
         try {
-          options = require(`./options/${this.component}.js`).default
+          options = require(`./options/${this.currentComponent}.js`).default
         } catch {
           options = defaultOptions
         }
@@ -108,31 +116,79 @@ export default Vue.extend({
 
     const methodsButtons = this.__renderMethodsButtons(h)
 
-    return h('div', {
-      staticClass: 'q-px-md'
-    }, [
-      h(Quasar[this.component], {
-        ref: 'component',
-        props: this.model,
-        on: {
-          input: (val) => {
-            this.model.value = val
-          }
+    return h(Quasar.QSplitter, {
+      props: {
+        value: this.splitter1,
+        limits: [10, 30]
+      },
+      on: {
+        input: val => {
+          this.splitter1 = val
         }
-      }),
-      methodsButtons,
-      h(PropSelector, {
+      },
+      style: 'height: calc(100vh - 50px)'
+    }, [
+      h('div', {
+        slot: 'before'
+      }, [
+        h(ComponentList, {
+          props: {
+            value: this.currentComponent
+          },
+          on: {
+            input: val => {
+              this.currentComponent = val
+            }
+          }
+        })
+      ]),
+      h(Quasar.QSplitter, {
         props: {
-          api: this.api,
-          value: this.model,
-          contentClass: 'row'
+          value: this.splitter2,
+          limits: [30, 70]
         },
         on: {
-          input: (prop, val) => {
-            this.model[prop] = val
+          input: val => {
+            this.splitter2 = val
           }
-        }
-      })
+        },
+        slot: 'after'
+      }, [
+        h('div', {
+          slot: 'before',
+          staticClass: 'q-pa-md'
+        }, [
+          h(Quasar[this.currentComponent], {
+            ref: 'component',
+            props: this.model,
+            on: {
+              input: (val) => {
+                this.model.value = val
+              }
+            },
+            staticClass: this.model.dark ? 'bg-grey-10' : void 0
+          }),
+          h('div', {
+            staticClass: 'q-mt-md'
+          }, [methodsButtons])
+        ]),
+        h('div', {
+          slot: 'after'
+        }, [
+          h(PropSelector, {
+            props: {
+              api: this.api,
+              value: this.model,
+              contentClass: 'column'
+            },
+            on: {
+              input: (prop, val) => {
+                this.model[prop] = val
+              }
+            }
+          })
+        ])
+      ])
     ])
   }
 })

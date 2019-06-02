@@ -25,18 +25,25 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    categories () {
+      return Object.keys(this.api.props).filter(p => Object.keys(this.api.props[p]).filter(p => p !== 'value').length)
+    }
+  },
+
   methods: {
     __renderTabs (h) {
       return h(QTabs, {
         props: {
-          value: this.tab
+          value: this.tab,
+          align: 'justify'
         },
         on: {
           input: (val) => {
             this.tab = val
           }
         }
-      }, Object.keys(this.api.props).map(
+      }, this.categories.map(
         c => h(QTab, {
           props: {
             name: c,
@@ -71,7 +78,7 @@ export default Vue.extend({
     api: {
       immediate: true,
       async handler () {
-        this.tab = Object.keys(this.api.props)[0]
+        this.tab = this.categories[0]
       }
     }
   },
@@ -82,7 +89,7 @@ export default Vue.extend({
     }
 
     const controls = {}
-    for (let category in this.api.props) {
+    for (let category of this.categories) {
       controls[category] = []
       const groupedProps = groupBy(this.api.props[category], 'type')
       for (let type in groupedProps) {
@@ -118,7 +125,7 @@ export default Vue.extend({
 
         controls[category].push(
           h('div', {
-            staticClass: 'row col-12'
+            staticClass: 'row'
           }, typeControls)
         )
       }

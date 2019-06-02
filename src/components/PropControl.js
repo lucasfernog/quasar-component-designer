@@ -29,6 +29,13 @@ export default Vue.extend({
     }
   },
 
+  watch: {
+    propDefinition (propDefinition) {
+      const type = propDefinition.type
+      this.currentType = Array.isArray(type) ? type[0] : type
+    }
+  },
+
   methods: {
     __renderTypeChooser (h) {
       return h(QBadge, [
@@ -78,7 +85,9 @@ export default Vue.extend({
       return h('div', [`Type ${this.currentType} not found`])
     }
 
-    return h('div', [h(types[this.currentType].component, {
+    return h('div', {
+      staticClass: this.contentClass
+    }, [h(types[this.currentType].component, {
       props: {
         value: this.value,
         prop: this.prop,
@@ -88,8 +97,7 @@ export default Vue.extend({
         input: val => {
           this.$emit('input', val)
         }
-      },
-      staticClass: this.contentClass
+      }
     })].concat(children))
   }
 })
