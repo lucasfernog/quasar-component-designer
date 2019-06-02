@@ -12,7 +12,7 @@ export default Vue.extend({
 
   data () {
     return {
-      argumentsValues: {}
+      model: {}
     }
   },
 
@@ -29,13 +29,24 @@ export default Vue.extend({
 
       if (types[type]) {
         controls.push(
-          types[type].render(h, this.argumentsValues, argument, argumentDefinition)
+          h(types[type].component, {
+            props: {
+              value: this.model[argument],
+              prop: argument,
+              propDefinition: argumentDefinition
+            },
+            on: {
+              input: val => {
+                this.model[argument] = val
+              }
+            }
+          })
         )
         defaultValue = types[type].defaultValue(argumentDefinition)
       }
 
-      if (this.argumentsValues[argument] === void 0) {
-        this.$set(this.argumentsValues, argument, defaultValue)
+      if (this.model[argument] === void 0) {
+        this.$set(this.model, argument, defaultValue)
       }
     }
 
@@ -52,7 +63,7 @@ export default Vue.extend({
       ],
       on: {
         click: () => {
-          this.$emit('pick', this.argumentsValues)
+          this.$emit('pick', this.model)
         }
       }
     }))

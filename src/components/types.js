@@ -1,18 +1,22 @@
 export default {
   Boolean: {
-    render: require('./control/boolean').default,
+    component: require('./control/BooleanControl').default,
     defaultValue: def => (def.default || 'false').toLowerCase() === 'true'
   },
   String: {
-    render: require('./control/string').default,
+    component: require('./control/StringControl').default,
     defaultValue: def => def.required ? (def.default || '') : null
   },
   Any: {
-    render: require('./control/json').default,
+    component: require('./control/JsonControl').default,
     defaultValue: def => def.required ? (def.default || '') : null
   },
   Array: {
-    render: require('./control/array').default,
+    component: require('./control/ArrayControl').default,
     defaultValue: def => def.required ? (def.default || []) : null
+  },
+  Number: {
+    component: require('./control/NumberControl').default,
+    defaultValue: def => def.required ? (def.default || 0) : null
   }
 }

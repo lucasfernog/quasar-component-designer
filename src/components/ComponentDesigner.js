@@ -1,11 +1,12 @@
 import Vue from 'vue'
 const Quasar = require('quasar')
 import defaultOptions from './options/default'
-import ArgumentPicker from './ArgumentPicker.js'
+import ArgumentSelector from './ArgumentSelector.js'
+import PropSelector from './PropSelector.js'
 import types from './types.js'
 
 export default Vue.extend({
-  // name: 'ComponentName',
+  name: 'ComponentDesigner',
 
   props: {
     component: {
@@ -16,7 +17,7 @@ export default Vue.extend({
 
   data () {
     return {
-      propValues: {},
+      model: {},
       api: null,
       tab: null,
       options: null
@@ -41,45 +42,6 @@ export default Vue.extend({
       return res
     },
 
-    __renderTabs (h) {
-      return h(Quasar.QTabs, {
-        props: {
-          value: this.tab
-        },
-        on: {
-          input: (val) => {
-            this.tab = val
-          }
-        }
-      }, Object.keys(this.api.props).map(
-        c => h(Quasar.QTab, {
-          props: {
-            name: c,
-            label: c
-          }
-        })
-      ))
-    },
-
-    __renderTabPanels (h, controls) {
-      return h(Quasar.QTabPanels, {
-        props: {
-          value: this.tab
-        },
-        on: {
-          input: (val) => {
-            this.tab = val
-          }
-        }
-      }, Object.keys(controls).map(
-        c => h(Quasar.QTabPanel, {
-          props: {
-            name: c
-          }
-        }, controls[c])
-      ))
-    },
-
     __renderMethodsButtons (h) {
       return this.api.methods ? Object.keys(this.api.methods).map(
         m => h(Quasar.QBtn, {
@@ -95,7 +57,7 @@ export default Vue.extend({
               }
             }
           }
-        }, this.api.methods[m].params === void 0 ? null : [h(ArgumentPicker, {
+        }, this.api.methods[m].params === void 0 ? null : [h(ArgumentSelector, {
           props: {
             arguments: this.api.methods[m].params
           },
@@ -120,17 +82,35 @@ export default Vue.extend({
       async handler () {
         this.api = (await import(`quasar/dist/api/${this.component}.json`)).default
         this.api.props = this.__groupBy(this.api.props, 'category', 'general')
-        this.tab = Object.keys(this.api.props)[0]
-        try {
-          this.options = require(`./options/${this.component}.js`).default
-        } catch {
-          this.options = defaultOptions
+
+        for (let category in this.api.props) {
+          for (let prop in this.api.props[category]) {
+            const propDefinition = this.api.props[category][prop]
+            let defaultValue = null,
+              type = propDefinition.type
+            if (Array.isArray(type)) {
+              type = type[0]
+            }
+            if (types[type] !== void 0) {
+              defaultValue = types[type].defaultValue(propDefinition)
+              if (this.model[prop] === void 0) {
+                this.$set(this.model, prop, defaultValue)
+              }
+            }
+          }
         }
 
-        for (let prop in this.options.props) {
-          const propDef = this.options.props[prop]
+        let options
+        try {
+          options = require(`./options/${this.component}.js`).default
+        } catch {
+          options = defaultOptions
+        }
+
+        for (let prop in options.props) {
+          const propDef = options.props[prop]
           if (propDef.defaultValue !== void 0) {
-            this.$set(this.propValues, prop, propDef.defaultValue)
+            this.model[prop] = propDef.defaultValue
           }
         }
       }
@@ -142,34 +122,6 @@ export default Vue.extend({
       return
     }
 
-    const controls = {}
-    for (let category in this.api.props) {
-      controls[category] = []
-      for (let prop in this.api.props[category]) {
-        const propDefinition = this.api.props[category][prop]
-        let defaultValue = null,
-          type = propDefinition.type
-        if (Array.isArray(type)) {
-          type = type[0]
-        }
-
-        if (types[type]) {
-          if (prop !== 'value') {
-            controls[category].push(
-              types[type].render(h, this.propValues, prop, propDefinition)
-            )
-          }
-          defaultValue = types[type].defaultValue(propDefinition)
-        }
-
-        if (this.propValues[prop] === void 0) {
-          this.$set(this.propValues, prop, defaultValue)
-        }
-      }
-    }
-
-    const tabs = this.__renderTabs(h)
-    const tabPanels = this.__renderTabPanels(h, controls)
     const methodsButtons = this.__renderMethodsButtons(h)
 
     return h('div', {
@@ -177,16 +129,25 @@ export default Vue.extend({
     }, [
       h(Quasar[this.component], {
         ref: 'component',
-        props: this.propValues,
+        props: this.model,
         on: {
           input: (val) => {
-            this.propValues.value = val
+            this.model.value = val
           }
         }
       }),
       methodsButtons,
-      tabs,
-      tabPanels
+      h(PropSelector, {
+        props: {
+          api: this.api,
+          value: this.model
+        },
+        on: {
+          input: (prop, val) => {
+            this.model[prop] = val
+          }
+        }
+      })
     ])
   }
 })
