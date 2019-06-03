@@ -21,6 +21,7 @@ export default Vue.extend({
   data () {
     return {
       model: {},
+      attrs: {},
       currentComponent: this.component,
       api: null,
       tab: null,
@@ -73,8 +74,9 @@ export default Vue.extend({
     currentComponent: {
       immediate: true,
       handler () {
-        const model = {}
-        const api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
+        const model = {},
+          attrs = {},
+          api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
         api.props = groupBy(api.props, 'category', 'general')
 
         for (let category in api.props) {
@@ -105,10 +107,15 @@ export default Vue.extend({
         for (let prop in options.props) {
           const propDef = options.props[prop]
           if (propDef.defaultValue !== void 0) {
-            model[prop] = propDef.defaultValue
+            if (prop in model) {
+              model[prop] = propDef.defaultValue
+            } else {
+              attrs[prop] = propDef.defaultValue
+            }
           }
         }
 
+        this.attrs = attrs
         this.model = model
         this.api = api
         this.loadedApi = true
@@ -170,6 +177,7 @@ export default Vue.extend({
             props: {
               component: this.currentComponent,
               componentProps: this.model,
+              componentAttrs: this.attrs,
               renderChildren: this.options.renderChildren,
               getParentComponent: this.options.getParentComponent
             },

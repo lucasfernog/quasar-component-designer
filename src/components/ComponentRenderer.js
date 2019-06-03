@@ -11,6 +11,10 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    componentAttrs: {
+      type: Object,
+      required: true
+    },
     renderChildren: Function,
     getParentComponent: Function
   },
@@ -25,6 +29,7 @@ export default Vue.extend({
     const component = h(Quasar[this.component], {
       ref: 'component',
       props: this.componentProps,
+      staticClass: this.componentAttrs.class,
       on: {
         input: (val) => {
           this.$emit('input', val)
