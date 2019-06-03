@@ -27,7 +27,7 @@ export default Vue.extend({
 
   computed: {
     categories () {
-      return Object.keys(this.api.props).filter(p => Object.keys(this.api.props[p]).filter(p => p !== 'value').length)
+      return Object.keys(this.api.props).filter(p => Object.keys(this.api.props[p]).length)
     }
   },
 
@@ -104,23 +104,21 @@ export default Vue.extend({
             type = type[0]
           }
 
-          if (prop !== 'value') {
-            typeControls.push(
-              h(PropControl, {
-                props: {
-                  value: this.value[prop],
-                  prop,
-                  propDefinition,
-                  contentClass: type === 'Boolean' ? 'col-xs-3 col-md-2 q-pr-md' : 'col-xs-12 col-md-4 q-pr-md'
-                },
-                on: {
-                  input: val => {
-                    this.$emit('input', prop, val)
-                  }
+          typeControls.push(
+            h(PropControl, {
+              props: {
+                value: this.value[prop],
+                prop,
+                propDefinition,
+                contentClass: type === 'Boolean' ? 'col-xs-3 col-md-2 q-pr-md' : 'col-xs-12 col-md-4 q-pr-md'
+              },
+              on: {
+                input: val => {
+                  this.$emit('input', prop, val)
                 }
-              })
-            )
-          }
+              }
+            })
+          )
         }
 
         controls[category].push(

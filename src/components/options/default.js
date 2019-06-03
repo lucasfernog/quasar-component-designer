@@ -1,3 +1,5 @@
 export default {
-  props: {}
+  props: {},
+  renderChildren: null,
+  getParentComponent: null
 }

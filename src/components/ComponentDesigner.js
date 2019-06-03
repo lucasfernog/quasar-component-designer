@@ -4,6 +4,7 @@ import defaultOptions from './options/default'
 import ArgumentSelector from './ArgumentSelector.js'
 import PropSelector from './PropSelector.js'
 import ComponentList from './ComponentList.js'
+import ComponentRenderer from './ComponentRenderer.js'
 import types from './types.js'
 import groupBy from './groupBy.js'
 
@@ -25,7 +26,8 @@ export default Vue.extend({
       tab: null,
       options: null,
       splitter1: 15,
-      splitter2: 50
+      splitter2: 50,
+      loadedApi: false
     }
   },
 
@@ -41,7 +43,7 @@ export default Vue.extend({
           on: {
             click: () => {
               if (this.api.methods[m].params === void 0) {
-                this.$refs.component[m]()
+                this.$refs.componentRenderer.$refs.component[m]()
               }
             }
           }
@@ -56,7 +58,7 @@ export default Vue.extend({
                 argArray.push(args[arg])
               }
               console.log(argArray)
-              this.$refs.component[m].apply(this, argArray)
+              this.$refs.componentRenderer.$refs.component[m].apply(this, argArray)
             }
           }
         })])
@@ -71,13 +73,13 @@ export default Vue.extend({
     currentComponent: {
       immediate: true,
       async handler () {
-        this.model = {}
-        this.api = (await import(`quasar/dist/api/${this.currentComponent}.json`)).default
-        this.api.props = groupBy(this.api.props, 'category', 'general')
+        const model = {}
+        const api = (await import(`quasar/dist/api/${this.currentComponent}.json`)).default
+        api.props = groupBy(api.props, 'category', 'general')
 
-        for (let category in this.api.props) {
-          for (let prop in this.api.props[category]) {
-            const propDefinition = this.api.props[category][prop]
+        for (let category in api.props) {
+          for (let prop in api.props[category]) {
+            const propDefinition = api.props[category][prop]
             let defaultValue = null,
               type = propDefinition.type
             if (Array.isArray(type)) {
@@ -86,8 +88,8 @@ export default Vue.extend({
             if (types[type] !== void 0) {
               defaultValue = types[type].defaultValue(propDefinition)
             }
-            if (this.model[prop] === void 0) {
-              this.$set(this.model, prop, defaultValue)
+            if (model[prop] === void 0) {
+              this.$set(model, prop, defaultValue)
             }
           }
         }
@@ -98,13 +100,18 @@ export default Vue.extend({
         } catch {
           options = defaultOptions
         }
+        this.options = options
 
         for (let prop in options.props) {
           const propDef = options.props[prop]
           if (propDef.defaultValue !== void 0) {
-            this.model[prop] = propDef.defaultValue
+            model[prop] = propDef.defaultValue
           }
         }
+
+        this.model = model
+        this.api = api
+        this.loadedApi = true
       }
     }
   },
@@ -138,11 +145,12 @@ export default Vue.extend({
           on: {
             input: val => {
               this.currentComponent = val
+              this.loadedApi = false
             }
           }
         })
       ]),
-      h(Quasar.QSplitter, {
+      !this.loadedApi ? void 0 : h(Quasar.QSplitter, {
         props: {
           value: this.splitter2,
           limits: [30, 70]
@@ -158,14 +166,19 @@ export default Vue.extend({
           slot: 'before',
           staticClass: 'q-pa-md'
         }, [
-          h(Quasar[this.currentComponent], {
-            ref: 'component',
-            props: this.model,
+          h(ComponentRenderer, {
+            props: {
+              component: this.currentComponent,
+              componentProps: this.model,
+              renderChildren: this.options.renderChildren,
+              getParentComponent: this.options.getParentComponent
+            },
             on: {
-              input: (val) => {
+              input: val => {
                 this.model.value = val
               }
             },
+            ref: 'componentRenderer',
             staticClass: this.model.dark ? 'bg-grey-10' : void 0
           }),
           h('div', {
