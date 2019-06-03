@@ -72,9 +72,9 @@ export default Vue.extend({
     },
     currentComponent: {
       immediate: true,
-      async handler () {
+      handler () {
         const model = {}
-        const api = (await import(`quasar/dist/api/${this.currentComponent}.json`)).default
+        const api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
         api.props = groupBy(api.props, 'category', 'general')
 
         for (let category in api.props) {
