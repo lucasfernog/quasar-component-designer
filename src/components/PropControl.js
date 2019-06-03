@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { QBadge, QPopupEdit, QSelect } from 'quasar'
-import types from './types.js'
+import types from './utils/types.js'
 
 export default Vue.extend({
   name: 'PropControl',

@@ -5,8 +5,9 @@ import ArgumentSelector from './ArgumentSelector.js'
 import PropSelector from './PropSelector.js'
 import ComponentList from './ComponentList.js'
 import ComponentRenderer from './ComponentRenderer.js'
-import types from './types.js'
-import groupBy from './groupBy.js'
+import types from './utils/types.js'
+import groupBy from './utils/groupBy.js'
+import getComponentDeclaration from './utils/getComponentDeclaration.js'
 
 export default Vue.extend({
   name: 'ComponentDesigner',
@@ -196,7 +197,10 @@ export default Vue.extend({
           }),
           h('div', {
             staticClass: 'q-mt-md'
-          }, [methodsButtons])
+          }, [methodsButtons]),
+          h('div', {
+            staticClass: 'bg-accent text-white q-mt-lg q-pa-md'
+          }, getComponentDeclaration(this.currentComponent, this.model, this.api))
         ]),
         h('div', {
           slot: 'after'

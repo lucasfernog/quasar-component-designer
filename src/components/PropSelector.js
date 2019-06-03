@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import groupBy from './groupBy.js'
+import groupBy from './utils/groupBy.js'
 import { QTabs, QTab, QTabPanels, QTabPanel } from 'quasar'
 import PropControl from './PropControl.js'
 
