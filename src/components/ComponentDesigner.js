@@ -22,6 +22,7 @@ export default Vue.extend({
     return {
       model: {},
       attrs: {},
+      propOptions: {},
       currentComponent: this.component,
       api: null,
       tab: null,
@@ -76,12 +77,14 @@ export default Vue.extend({
       handler () {
         const model = {},
           attrs = {},
+          propOptions = {},
           api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
         api.props = groupBy(api.props, 'category', 'general')
 
         for (let category in api.props) {
           for (let prop in api.props[category]) {
             const propDefinition = api.props[category][prop]
+            propOptions[prop] = {}
             let defaultValue = null,
               type = propDefinition.type
             if (Array.isArray(type)) {
@@ -106,6 +109,7 @@ export default Vue.extend({
 
         for (let prop in options.props) {
           const propDef = options.props[prop]
+          propOptions[prop] = propDef
           if (propDef.defaultValue !== void 0) {
             if (prop in model) {
               model[prop] = propDef.defaultValue
@@ -115,6 +119,7 @@ export default Vue.extend({
           }
         }
 
+        this.propOptions = propOptions
         this.attrs = attrs
         this.model = model
         this.api = api
@@ -200,6 +205,7 @@ export default Vue.extend({
             props: {
               api: this.api,
               value: this.model,
+              options: this.propOptions,
               contentClass: 'column'
             },
             on: {

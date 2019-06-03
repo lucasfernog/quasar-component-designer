@@ -16,7 +16,9 @@ export default Vue.extend({
     propDefinition: {
       type: Object,
       required: true
-    }
+    },
+    disable: Boolean,
+    hint: String
   },
 
   render (h) {
@@ -26,7 +28,9 @@ export default Vue.extend({
           ? JSON.stringify(this.value, null, 2)
           : this.value,
         label: this.prop,
-        type: 'textarea'
+        type: 'textarea',
+        disable: this.disable,
+        hint: this.hint
       },
       on: {
         input: val => {

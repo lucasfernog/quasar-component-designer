@@ -14,6 +14,10 @@ export default Vue.extend({
       type: String,
       required: true
     },
+    options: {
+      type: Object,
+      required: true
+    },
     value: {
       validator () {
         return true
@@ -91,7 +95,9 @@ export default Vue.extend({
       props: {
         value: this.value,
         prop: this.prop,
-        propDefinition: this.propDefinition
+        propDefinition: this.propDefinition,
+        disable: this.options.disable,
+        hint: this.options.hint
       },
       on: {
         input: val => {

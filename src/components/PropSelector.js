@@ -15,13 +15,16 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    options: {
+      type: Object,
+      required: true
+    },
     contentClass: String
   },
 
   data () {
     return {
-      tab: null,
-      options: null
+      tab: null
     }
   },
 
@@ -110,7 +113,8 @@ export default Vue.extend({
                 value: this.value[prop],
                 prop,
                 propDefinition,
-                contentClass: type === 'Boolean' ? 'col-xs-3 col-md-2 q-pr-md' : 'col-xs-12 col-md-4 q-pr-md'
+                options: this.options[prop],
+                contentClass: type === 'Boolean' ? 'col-6 col-md-2 q-pr-md' : 'col-12 col-md-6 col-lg-4 q-pr-md'
               },
               on: {
                 input: val => {

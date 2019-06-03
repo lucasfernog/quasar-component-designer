@@ -15,7 +15,9 @@ export default Vue.extend({
     propDefinition: {
       type: Object,
       required: true
-    }
+    },
+    disable: Boolean,
+    hint: String
   },
 
   render (h) {
@@ -23,7 +25,9 @@ export default Vue.extend({
       props: {
         value: this.value,
         label: this.prop,
-        type: 'number'
+        type: 'number',
+        disable: this.disable,
+        hint: this.hint
       },
       on: {
         input: val => {

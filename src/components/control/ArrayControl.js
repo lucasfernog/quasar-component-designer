@@ -6,14 +6,18 @@ export default Vue.extend({
   name: 'ArrayControl',
 
   props: {
-    value: Array
+    value: Array,
+    disable: Boolean,
+    hint: String
   },
 
   render (h) {
     return h(QList, {
       props: {
         bordered: true,
-        dense: true
+        dense: true,
+        disable: this.disable,
+        hint: this.hint
       }
     }, !this.value ? null : this.value.map((item, index) =>
       typeof item === 'object' ? h(QExpansionItem, {

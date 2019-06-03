@@ -32,7 +32,7 @@ export default {
       props: {
         dense: true,
         value: true,
-        label: 'Toggle'
+        label: 'Placeholder Control'
       }
     })
   }

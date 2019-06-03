@@ -16,13 +16,17 @@ export default Vue.extend({
     propDefinition: {
       type: Object,
       required: true
-    }
+    },
+    disable: Boolean,
+    hint: String
   },
 
   render (h) {
     const props = {
       value: this.value,
-      label: this.prop
+      label: this.prop,
+      disable: this.disable,
+      hint: this.hint
     }
 
     let component

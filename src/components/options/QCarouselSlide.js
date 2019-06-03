@@ -22,8 +22,8 @@ export default {
     },
     'name': {
       defaultValue: 'style',
-      disabled: true, // TODO
-      hint: 'This is disabled because its the model value of the QCarousel presented' // TODO
+      disable: true,
+      hint: 'This is disabled because its the model of the QCarousel presented'
     }
   }
 }
