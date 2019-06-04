@@ -106,7 +106,6 @@ export default Vue.extend({
         } catch {
           options = defaultOptions
         }
-        this.options = options
 
         for (let prop in options.props) {
           const propDef = options.props[prop]
@@ -120,6 +119,7 @@ export default Vue.extend({
           }
         }
 
+        this.options = options
         this.propOptions = propOptions
         this.attrs = attrs
         this.model = model
@@ -185,7 +185,8 @@ export default Vue.extend({
               componentProps: this.model,
               componentAttrs: this.attrs,
               renderChildren: this.options.renderChildren,
-              getParentComponent: this.options.getParentComponent
+              getParentComponent: this.options.getParentComponent,
+              events: this.options.events || {}
             },
             on: {
               input: val => {

@@ -16,7 +16,31 @@ export default Vue.extend({
       required: true
     },
     renderChildren: Function,
-    getParentComponent: Function
+    getParentComponent: Function,
+    events: {
+      type: Object,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      listeners: {}
+    }
+  },
+
+  watch: {
+    events: {
+      immediate: true,
+      handler () {
+        this.events.created && this.events.created.bind(this)()
+        for (let event in this.events) {
+          if (event !== 'created') {
+            this.listeners[event] = this.events[event].bind(this)
+          }
+        }
+      }
+    }
   },
 
   render (h) {
@@ -31,6 +55,7 @@ export default Vue.extend({
       props: this.componentProps,
       staticClass: this.componentAttrs.class,
       on: {
+        ...this.listeners,
         input: (val) => {
           this.$emit('input', val)
         }
