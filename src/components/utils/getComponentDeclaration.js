@@ -11,6 +11,7 @@ function getPropDefinition (api, prop) {
   }
 }
 
+// TODO read listeners
 export default (componentName, props, api) => {
   let declaration = `<${componentName}`
   for (let prop in props) {

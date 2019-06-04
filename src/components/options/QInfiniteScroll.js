@@ -4,7 +4,7 @@ import { QSpinnerDots } from 'quasar'
 export default {
   renderChildren (h, props) {
     return [
-      this.items === void 0 ? void 0 : this.items.map((_, index) => {
+      this.infiniteScrollItems === void 0 ? void 0 : this.infiniteScrollItems.map((_, index) => {
         return h('div', {
           props: {
             key: index
@@ -33,13 +33,13 @@ export default {
 
   events: {
     created () {
-      Vue.util.defineReactive(this, 'items', [{}, {}])
+      Vue.util.defineReactive(this, 'infiniteScrollItems', [{}, {}])
     },
 
     load (index, done) {
       setTimeout(() => {
-        if (this.items) {
-          this.items.push({}, {})
+        if (this.infiniteScrollItems) {
+          this.infiniteScrollItems.push({}, {})
           done()
         }
       }, 2000)
