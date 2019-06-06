@@ -21,6 +21,12 @@ export default Vue.extend({
     hint: String
   },
 
+  data () {
+    return {
+      options: null
+    }
+  },
+
   render (h) {
     const props = {
       value: this.value,
@@ -29,26 +35,43 @@ export default Vue.extend({
       hint: this.hint
     }
 
-    let component
+    let component, on = {}
     if (this.propDefinition.values === void 0) {
       component = QInput
     } else {
       component = QSelect
-      props.options = this.propDefinition.values.map(v => {
+      const options = this.propDefinition.values.map(v => {
         return {
           label: v,
           value: v
         }
       })
+      if (this.options === null) {
+        this.options = options
+      }
       props['emit-value'] = true
+      props['use-input'] = true
+      props['fill-input'] = true
+      props['hide-selected'] = true
+      props['input-debounce'] = 0
+      on.filter = (val, update, abort) => {
+        update(() => {
+          const needle = val.toLowerCase()
+          this.options = options.filter(v => v.label.toLowerCase().indexOf(needle) > -1)
+        })
+      }
     }
 
     return h(component, {
-      props,
+      props: {
+        options: this.options,
+        ...props
+      },
       on: {
         input: val => {
           this.$emit('input', val)
-        }
+        },
+        ...on
       },
       attrs: {
         placeholder: this.prop

@@ -9,6 +9,8 @@ import types from './utils/types.js'
 import groupBy from './utils/groupBy.js'
 import getComponentDeclaration from './utils/getComponentDeclaration.js'
 
+const transitions = require('./props/transitions').default
+
 export default Vue.extend({
   name: 'ComponentDesigner',
 
@@ -108,6 +110,11 @@ export default Vue.extend({
           for (let category in api.props) {
             for (let prop in api.props[category]) {
               const propDefinition = api.props[category][prop]
+
+              if (prop.includes('transition')) {
+                propDefinition.values = transitions
+              }
+
               propOptions[prop] = {}
               let defaultValue = null,
                 type = propDefinition.type
