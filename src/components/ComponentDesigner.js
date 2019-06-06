@@ -25,18 +25,36 @@ export default Vue.extend({
       attrs: {},
       propOptions: {},
       currentComponent: this.component,
-      api: null,
+      api: {},
       tab: null,
-      options: null,
+      options: {},
       splitter1: 15,
       splitter2: 50,
       loadedApi: false
     }
   },
 
+  computed: {
+    currentApi () {
+      return this.api[this.currentComponent]
+    },
+    currentModel () {
+      return this.model[this.currentComponent]
+    },
+    currentAttrs () {
+      return this.attrs[this.currentComponent]
+    },
+    currentPropOptions () {
+      return this.propOptions[this.currentComponent]
+    },
+    currentOptions () {
+      return this.options[this.currentComponent]
+    }
+  },
+
   methods: {
     __renderMethodsButtons (h) {
-      return this.api.methods ? Object.keys(this.api.methods).map(
+      return this.currentApi.methods ? Object.keys(this.currentApi.methods).map(
         m => h(Quasar.QBtn, {
           props: {
             label: m,
@@ -45,14 +63,14 @@ export default Vue.extend({
           staticClass: 'q-mx-xs',
           on: {
             click: () => {
-              if (this.api.methods[m].params === void 0) {
+              if (this.currentApi.methods[m].params === void 0) {
                 this.$refs.componentRenderer.$refs.component[m]()
               }
             }
           }
-        }, this.api.methods[m].params === void 0 ? null : [h(ArgumentSelector, {
+        }, this.currentApi.methods[m].params === void 0 ? null : [h(ArgumentSelector, {
           props: {
-            arguments: this.api.methods[m].params
+            arguments: this.currentApi.methods[m].params
           },
           on: {
             pick: (args) => {
@@ -76,61 +94,63 @@ export default Vue.extend({
     currentComponent: {
       immediate: true,
       handler () {
-        const model = {},
-          attrs = {},
-          propOptions = {},
-          api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
-        api.props = groupBy(api.props, 'category', 'general')
+        if (this.api[this.currentComponent] === void 0) {
+          const model = {},
+            attrs = {},
+            propOptions = {},
+            api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
+          api.props = groupBy(api.props, 'category', 'general')
+          this.$set(this.model, this.currentComponent, model)
+          this.attrs[this.currentComponent] = attrs
+          this.propOptions[this.currentComponent] = propOptions
+          this.api[this.currentComponent] = api
 
-        for (let category in api.props) {
-          for (let prop in api.props[category]) {
-            const propDefinition = api.props[category][prop]
-            propOptions[prop] = {}
-            let defaultValue = null,
-              type = propDefinition.type
-            if (Array.isArray(type)) {
-              type = type[0]
-            }
-            if (types[type] !== void 0) {
-              defaultValue = types[type].defaultValue(propDefinition)
-            }
-            if (model[prop] === void 0) {
-              this.$set(model, prop, defaultValue)
-            }
-          }
-        }
-
-        let options
-        try {
-          options = require(`./options/${this.currentComponent}.js`).default
-        } catch {
-          options = defaultOptions
-        }
-
-        for (let prop in options.props) {
-          const propDef = options.props[prop]
-          propOptions[prop] = propDef
-          if (propDef.defaultValue !== void 0) {
-            if (prop in model) {
-              model[prop] = propDef.defaultValue
-            } else {
-              attrs[prop] = propDef.defaultValue
+          for (let category in api.props) {
+            for (let prop in api.props[category]) {
+              const propDefinition = api.props[category][prop]
+              propOptions[prop] = {}
+              let defaultValue = null,
+                type = propDefinition.type
+              if (Array.isArray(type)) {
+                type = type[0]
+              }
+              if (types[type] !== void 0) {
+                defaultValue = types[type].defaultValue(propDefinition)
+              }
+              if (model[prop] === void 0) {
+                this.$set(model, prop, defaultValue)
+              }
             }
           }
-        }
 
-        this.options = options
-        this.propOptions = propOptions
-        this.attrs = attrs
-        this.model = model
-        this.api = api
+          let options
+          try {
+            options = require(`./options/${this.currentComponent}.js`).default
+          } catch {
+            options = defaultOptions
+          }
+
+          for (let prop in options.props) {
+            const propDef = options.props[prop]
+            propOptions[prop] = propDef
+            if (propDef.defaultValue !== void 0) {
+              if (prop in model) {
+                model[prop] = propDef.defaultValue
+              } else {
+                attrs[prop] = propDef.defaultValue
+              }
+            }
+          }
+
+          this.options[this.currentComponent] = options
+        }
         this.loadedApi = true
       }
     }
   },
 
   render (h) {
-    if (!this.api) {
+    if (!this.currentApi) {
       return
     }
 
@@ -182,40 +202,40 @@ export default Vue.extend({
           h(ComponentRenderer, {
             props: {
               component: this.currentComponent,
-              componentProps: this.model,
-              componentAttrs: this.attrs,
-              renderChildren: this.options.renderChildren,
-              getParentComponent: this.options.getParentComponent,
-              events: this.options.events || {}
+              componentProps: this.currentModel,
+              componentAttrs: this.currentAttrs,
+              renderChildren: this.currentOptions.renderChildren,
+              getParentComponent: this.currentOptions.getParentComponent,
+              events: this.currentOptions.events || {}
             },
             on: {
               input: val => {
-                this.model.value = val
+                this.currentModel.value = val
               }
             },
             ref: 'componentRenderer',
-            staticClass: this.model.dark ? 'bg-grey-10' : void 0
+            staticClass: this.currentModel.dark ? 'bg-grey-10' : void 0
           }),
           h('div', {
             staticClass: 'q-mt-md'
           }, [methodsButtons]),
           h('div', {
             staticClass: 'bg-accent text-white q-mt-lg q-pa-md'
-          }, getComponentDeclaration(this.currentComponent, this.model, this.api))
+          }, getComponentDeclaration(this.currentComponent, this.currentModel, this.currentApi))
         ]),
         h('div', {
           slot: 'after'
         }, [
           h(PropSelector, {
             props: {
-              api: this.api,
-              value: this.model,
-              options: this.propOptions,
+              api: this.currentApi,
+              value: this.currentModel,
+              options: this.currentPropOptions,
               contentClass: 'column'
             },
             on: {
               input: (prop, val) => {
-                this.model[prop] = val
+                this.currentModel[prop] = val
               }
             }
           })
