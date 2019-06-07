@@ -19,6 +19,10 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    iconSet: {
+      type: String,
+      required: true
+    },
     contentClass: String
   },
 
@@ -114,6 +118,7 @@ export default Vue.extend({
                 prop,
                 propDefinition,
                 options: this.options[prop],
+                iconSet: this.iconSet,
                 contentClass: type === 'Boolean' ? 'col-6 col-md-2 q-pr-md' : 'col-12 col-md-6 col-lg-4 q-pr-md'
               },
               on: {

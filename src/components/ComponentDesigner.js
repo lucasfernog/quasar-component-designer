@@ -18,6 +18,10 @@ export default Vue.extend({
     component: {
       type: String,
       required: true
+    },
+    iconSet: {
+      type: String,
+      required: true
     }
   },
 
@@ -90,6 +94,16 @@ export default Vue.extend({
   },
 
   watch: {
+    iconSet () {
+      for (const component in this.model) {
+        const model = this.model[component]
+        for (const prop in model) {
+          if (prop.includes('icon')) {
+            model[prop] = void 0
+          }
+        }
+      }
+    },
     component (val) {
       this.currentComponent = val
     },
@@ -238,6 +252,7 @@ export default Vue.extend({
               api: this.currentApi,
               value: this.currentModel,
               options: this.currentPropOptions,
+              iconSet: this.iconSet,
               contentClass: 'column'
             },
             on: {

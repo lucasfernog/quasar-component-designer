@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <component-designer component="QSelect"/>
+    <component-designer component="QSelect" :icon-set="iconSet"/>
   </q-page>
 </template>
 
@@ -14,6 +14,18 @@ export default {
 
   components: {
     ComponentDesigner
+  },
+
+  data () {
+    return {
+      iconSet: ''
+    }
+  },
+
+  created () {
+    this.$root.$on('iconSetChange', (val) => {
+      this.iconSet = val
+    })
   }
 }
 </script>

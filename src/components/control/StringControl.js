@@ -3,6 +3,7 @@ import {
   QSelect
 } from 'quasar'
 import Vue from 'vue'
+const iconSet = require('../props/iconSet.js').default
 
 export default Vue.extend({
   name: 'StringControl',
@@ -15,6 +16,10 @@ export default Vue.extend({
     },
     propDefinition: {
       type: Object,
+      required: true
+    },
+    iconSet: {
+      type: String,
       required: true
     },
     disable: Boolean,
@@ -36,11 +41,10 @@ export default Vue.extend({
     }
 
     let component, on = {}
-    if (this.propDefinition.values === void 0) {
-      component = QInput
-    } else {
+    const propDefinitionValues = this.propDefinition.values || (this.prop.includes('icon') && iconSet[this.iconSet])
+    if (propDefinitionValues) {
       component = QSelect
-      const options = this.propDefinition.values.map(v => {
+      const options = propDefinitionValues.map(v => {
         return {
           label: v,
           value: v
@@ -60,6 +64,8 @@ export default Vue.extend({
           this.options = options.filter(v => v.label.toLowerCase().indexOf(needle) > -1)
         })
       }
+    } else {
+      component = QInput
     }
 
     return h(component, {

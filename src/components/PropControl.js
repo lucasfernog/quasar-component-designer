@@ -18,6 +18,10 @@ export default Vue.extend({
       type: Object,
       required: true
     },
+    iconSet: {
+      type: String,
+      required: true
+    },
     value: {
       validator () {
         return true
@@ -96,6 +100,7 @@ export default Vue.extend({
         value: this.value,
         prop: this.prop,
         propDefinition: this.propDefinition,
+        iconSet: this.iconSet,
         disable: this.options.disable,
         hint: this.options.hint
       },
