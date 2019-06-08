@@ -1,6 +1,9 @@
 import {
   QInput,
-  QSelect
+  QSelect,
+  QIcon,
+  QItem,
+  QItemSection
 } from 'quasar'
 import Vue from 'vue'
 const iconSet = require('../props/iconSet.js').default
@@ -40,10 +43,29 @@ export default Vue.extend({
       hint: this.hint
     }
 
-    let component, on = {}
+    let component, on = {}, scopedSlots = {}
     const propDefinitionValues = this.propDefinition.values || (this.prop.includes('icon') && iconSet[this.iconSet])
     if (propDefinitionValues) {
       component = QSelect
+
+      if (this.prop.includes('icon')) {
+        scopedSlots.option = scope => h(QItem, {
+          props: scope.itemProps,
+          on: scope.itemEvents
+        }, [
+          h(QItemSection, {
+            props: {
+              avatar: true
+            }
+          }, [h(QIcon, {
+            props: {
+              name: scope.opt.label
+            }
+          })]),
+          h(QItemSection, scope.opt.label)
+        ])
+      }
+
       const options = propDefinitionValues.map(v => {
         return {
           label: v,
@@ -73,6 +95,7 @@ export default Vue.extend({
         options: this.options,
         ...props
       },
+      scopedSlots,
       on: {
         input: val => {
           this.$emit('input', val)
