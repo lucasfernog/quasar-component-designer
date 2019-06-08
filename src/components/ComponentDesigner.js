@@ -7,7 +7,7 @@ import ComponentList from './ComponentList.js'
 import ComponentRenderer from './ComponentRenderer.js'
 import types from './utils/types.js'
 import groupBy from './utils/groupBy.js'
-import getComponentDeclaration from './utils/getComponentDeclaration.js'
+import ComponentDeclaration from './ComponentDeclaration'
 
 const transitions = require('./props/transitions').default
 
@@ -240,9 +240,14 @@ export default Vue.extend({
           h('div', {
             staticClass: 'q-mt-md'
           }, [methodsButtons]),
-          h('div', {
+          h(ComponentDeclaration, {
+            props: {
+              component: this.currentComponent,
+              props: this.currentModel,
+              api: this.currentApi
+            },
             staticClass: 'bg-accent text-white q-mt-lg q-pa-md'
-          }, getComponentDeclaration(this.currentComponent, this.currentModel, this.currentApi))
+          })
         ]),
         h('div', {
           slot: 'after'
