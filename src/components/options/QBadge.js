@@ -5,7 +5,7 @@ export default {
   getParentComponent (props) {
     return Vue.extend({
       render (h) {
-        return h('div', {
+        return h('span', {
           staticClass: 'text-h4'
         }, [
           'Test container',

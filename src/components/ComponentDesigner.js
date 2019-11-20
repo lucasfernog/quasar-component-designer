@@ -61,34 +61,41 @@ export default Vue.extend({
   methods: {
     __renderMethodsButtons (h) {
       return this.currentApi.methods ? Object.keys(this.currentApi.methods).map(
-        m => h(Quasar.QBtn, {
-          props: {
-            label: m,
-            color: 'primary'
-          },
-          staticClass: 'q-mx-xs',
-          on: {
-            click: () => {
-              if (this.currentApi.methods[m].params === void 0) {
-                this.$refs.componentRenderer.$refs.component[m]()
+        m => {
+          const skipParams = this.currentApi.methods[m].params === void 0 ||
+            Object.keys(this.currentApi.methods[m].params).some(p => ['Object', 'Function'].includes(this.currentApi.methods[m].params[p].type))
+          return h(Quasar.QBtn, {
+            props: {
+              label: m,
+              color: 'primary'
+            },
+            on: {
+              click: () => {
+                if (skipParams) {
+                  this.$refs.componentRenderer.$refs.component[m]()
+                }
               }
             }
-          }
-        }, this.currentApi.methods[m].params === void 0 ? null : [h(ArgumentSelector, {
-          props: {
-            arguments: this.currentApi.methods[m].params
-          },
-          on: {
-            pick: (args) => {
-              const argArray = []
-              for (const arg in args) {
-                argArray.push(args[arg])
-              }
-              console.log(argArray)
-              this.$refs.componentRenderer.$refs.component[m].apply(this, argArray)
-            }
-          }
-        })])
+          }, skipParams
+            ? null
+            : [
+              h(ArgumentSelector, {
+                props: {
+                  arguments: this.currentApi.methods[m].params
+                },
+                on: {
+                  pick: (args) => {
+                    const argArray = []
+                    for (const arg in args) {
+                      argArray.push(args[arg])
+                    }
+                    console.log(argArray)
+                    this.$refs.componentRenderer.$refs.component[m].apply(this, argArray)
+                  }
+                }
+              })
+            ])
+        }
       ) : null
     }
   },
@@ -116,6 +123,7 @@ export default Vue.extend({
             propOptions = {},
             api = Quasar.extend(true, {}, require(`quasar/dist/api/${this.currentComponent}.json`))
           api.props = groupBy(api.props, 'category', 'general')
+
           this.$set(this.model, this.currentComponent, model)
           this.attrs[this.currentComponent] = attrs
           this.propOptions[this.currentComponent] = propOptions
@@ -238,7 +246,7 @@ export default Vue.extend({
             staticClass: this.currentModel.dark ? 'bg-grey-10' : void 0
           }),
           h('div', {
-            staticClass: 'q-mt-md'
+            staticClass: 'q-mt-md q-gutter-sm'
           }, [methodsButtons]),
           h(ComponentDeclaration, {
             props: {
@@ -250,7 +258,8 @@ export default Vue.extend({
           })
         ]),
         h('div', {
-          slot: 'after'
+          slot: 'after',
+          staticClass: 'fit'
         }, [
           h(PropSelector, {
             props: {

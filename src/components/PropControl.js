@@ -2,6 +2,16 @@ import Vue from 'vue'
 import { QBadge, QPopupEdit, QSelect } from 'quasar'
 import types from './utils/types.js'
 
+function initialType (type) {
+  if (Array.isArray(type)) {
+    if (type.includes('String')) {
+      return 'String'
+    }
+    return type[0]
+  }
+  return type
+}
+
 export default Vue.extend({
   name: 'PropControl',
 
@@ -33,14 +43,14 @@ export default Vue.extend({
   data () {
     const type = this.propDefinition.type
     return {
-      currentType: Array.isArray(type) ? type[0] : type
+      currentType: initialType(type)
     }
   },
 
   watch: {
     propDefinition (propDefinition) {
       const type = propDefinition.type
-      this.currentType = Array.isArray(type) ? type[0] : type
+      this.currentType = initialType(type)
     }
   },
 

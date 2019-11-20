@@ -23,7 +23,7 @@ export default {
     'name': {
       defaultValue: 'style',
       disable: true,
-      hint: 'This is disabled because its the model of the QCarousel presented'
+      hint: 'This is disabled because its the name of the QCarousel presented'
     }
   }
 }

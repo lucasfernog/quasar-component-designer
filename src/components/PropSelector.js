@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import groupBy from './utils/groupBy.js'
-import { QTabs, QTab, QTabPanels, QTabPanel } from 'quasar'
+import { QTabs, QTab, QTabPanels, QTabPanel, QSplitter } from 'quasar'
 import PropControl from './PropControl.js'
 
 export default Vue.extend({
@@ -28,13 +28,14 @@ export default Vue.extend({
 
   data () {
     return {
-      tab: null
+      tab: null,
+      splitterModel: 20
     }
   },
 
   computed: {
     categories () {
-      return Object.keys(this.api.props).filter(p => Object.keys(this.api.props[p]).length)
+      return Object.keys(this.api.props).filter(p => Object.keys(this.api.props[p]).filter(p => p !== 'value').length)
     }
   },
 
@@ -43,7 +44,7 @@ export default Vue.extend({
       return h(QTabs, {
         props: {
           value: this.tab,
-          align: 'justify'
+          vertical: true
         },
         on: {
           input: (val) => {
@@ -105,6 +106,9 @@ export default Vue.extend({
         const typeControls = []
 
         for (let prop in props) {
+          if (prop === 'value') {
+            continue
+          }
           const propDefinition = props[prop]
           let type = propDefinition.type
           if (Array.isArray(type)) {
@@ -119,7 +123,7 @@ export default Vue.extend({
                 propDefinition,
                 options: this.options[prop],
                 iconSet: this.iconSet,
-                contentClass: type === 'Boolean' ? 'col-6 col-md-2 q-pr-md' : 'col-12 col-md-6 col-lg-4 q-pr-md'
+                contentClass: 'col-12 col-md-6 q-pr-md'
               },
               on: {
                 input: val => {
@@ -141,8 +145,26 @@ export default Vue.extend({
     const tabs = this.__renderTabs(h)
     const tabPanels = this.__renderTabPanels(h, controls)
 
-    return h('div', {
-      staticClass: 'q-px-md'
-    }, [tabs, tabPanels])
+    return h(QSplitter, {
+      props: {
+        value: this.splitterModel,
+        limits: [10, 25]
+      },
+      on: {
+        input: val => {
+          this.splitter = val
+        }
+      },
+      staticClass: 'q-px-md fit'
+    }, [
+      h('div', {
+        slot: 'before',
+        staticClass: 'fit'
+      }, [tabs]),
+      h('div', {
+        slot: 'after',
+        staticClass: 'fit'
+      }, [tabPanels])
+    ])
   }
 })

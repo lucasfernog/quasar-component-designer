@@ -6,7 +6,7 @@ export default {
     color: {
       defaultValue: 'primary'
     },
-    textColor: {
+    'text-color': {
       defaultValue: 'white'
     }
   }

@@ -12,14 +12,14 @@ export default Vue.extend({
   },
 
   render (h) {
-    return h(QList, {
+    return this.value === void 0 || this.value.length === 0 ? null : h(QList, {
       props: {
         bordered: true,
         dense: true,
         disable: this.disable,
         hint: this.hint
       }
-    }, !this.value ? null : this.value.map((item, index) =>
+    }, this.value.map((item, index) =>
       typeof item === 'object' ? h(QExpansionItem, {
         props: {
           group: 'GROUP',
